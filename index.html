@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Numbers Game</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        color: white;
+        box-sizing: border-box;
+        background: linear-gradient(to right, rgb(75, 0, 75), purple, plum);
+      }
+      .top {
+        height: 50px;
+        border: 2px solid black;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+      }
+      .top_left {
+        display: flex;
+        justify-content: space-between;
+        width: 160px;
+      }
+      #button_container {
+        height: calc(100% - 50px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #playbutton {
+        height: 50px;
+        width: 100px;
+        border: none;
+        border-radius: 6px;
+        background-color: rgb(255, 112, 255);
+        cursor: pointer;
+        color: black;
+      }
+      #game_container {
+        width: 300px;
+        height: 150px;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        justify-content: space-between;
+        margin: 10px auto;
+        display: none;
+      }
+      #Numbers {
+        height: 50px;
+        width: 100px;
+        border: 2px solid black;
+        display: flex;
+        justify-content: space-between;
+      }
+      .button {
+        width: 145px;
+        height: 300px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .game-button {
+        height: 30px;
+        width: 30px;
+        border: none;
+        border-radius: 5px;
+        background-color: plum;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top">
+      <p id="time">Time : 60s</p>
+      <h1>Numbers Game</h1>
+      <div class="top_left">
+        <p id="correct">Correct : 0</p>
+        <p id="incorrect">Incorrect : 0</p>
+      </div>
+    </div>
+
+    <div id="button_container">
+      <button id="playbutton" aria-label="Start the game">Play</button>
+    </div>
+
+    <div id="game_container">
+      <div id="Numbers"></div>
+
+      <div class="button" id="buttons-container"></div>
+    </div>
+
+    <script>
+      const playBTN = document.getElementById("playbutton");
+      const BTNcontainer = document.getElementById("button_container");
+      const game_container = document.getElementById("game_container");
+      const timeDisplay = document.getElementById("time");
+      const correctDisplay = document.getElementById("correct");
+      const incorrectDisplay = document.getElementById("incorrect");
+      const numbersContainer = document.getElementById("Numbers");
+      const buttonsContainer = document.getElementById("buttons-container");
+
+      let timer = 60;
+      let correct = 0;
+      let incorrect = 0;
+      let numbers = [];
+
+      function generateNumbers() {
+        numbers = Array.from({ length: 200 }, () =>
+          Math.floor(Math.random() * 100)
+        );
+        updateDisplay();
+      }
+
+      function updateDisplay() {
+        numbersContainer.innerHTML = "";
+        numbers.slice(0, 4).forEach((num) => {
+          const p = document.createElement("p");
+          p.textContent = num;
+          numbersContainer.appendChild(p);
+        });
+
+        buttonsContainer.innerHTML = "";
+        const randomIndex = Math.floor(Math.random() * 8);
+        const usedNumbers = new Set([numbers[0]]);
+
+        for (let i = 0; i < 8; i++) {
+          const button = document.createElement("button");
+          button.classList.add("game-button");
+          if (i === randomIndex) {
+            button.textContent = numbers[0];
+          } else {
+            let randomNum;
+            do {
+              randomNum = Math.floor(Math.random() * 100) + 1;
+            } while (usedNumbers.has(randomNum));
+            usedNumbers.add(randomNum);
+            button.textContent = randomNum;
+          }
+          button.onclick = () => handleClick(button);
+          buttonsContainer.appendChild(button);
+        }
+      }
+
+      function handleClick(button) {
+        if (parseInt(button.textContent) === numbers[0]) {
+          correct++;
+          numbers.shift();
+          if (numbers.length < 4) generateNumbers();
+          updateDisplay();
+          button.classList.add("correct");
+        } else {
+          incorrect++;
+          button.classList.add("incorrect");
+        }
+        scoreDisplay.textContent = `Correct: ${correct} | Incorrect: ${incorrect}`;
+        setTimeout(() => {
+          button.classList.remove("correct", "incorrect");
+        }, 1000);
+      }
+
+      playBTN.addEventListener("click", () => {
+        playBTN.style.display = "none";
+        BTNcontainer.style.display = "none";
+        game_container.style.display = "flex";
+
+        generateNumbers();
+
+        const interval = setInterval(() => {
+          if (timer >= 0) {
+            timer--;
+            timeDisplay.textContent = `Time: ${timer}s`;
+          } else {
+            clearInterval(interval);
+            alert("Game Over!");
+          }
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>
